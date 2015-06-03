@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension id="google_analytics_dashboard" status="released" xmlns="http://symphony-cms.com/schemas/extension/1.0">
+	<name>Google Analytics Dashboard</name>
+	<description>
+		Google Analytics dashboard for Symphony CMS.
+	</description>
+	<repo type="github">https://github.com/DeuxHuitHuit/google_analytics_dashboard</repo>
+	<url type="discuss">http://www.getsymphony.com/discuss/thread//</url>
+	<url type="issues">https://github.com/DeuxHuitHuit/google_analytics_dashboard/issues</url>
+	<types>
+		<type>Google Analytics</type>
+		<type>Google</type>
+		<type>Analytics</type>
+		<type>Dashboard</type>
+		<type>Interface</type>
+	</types>
+	<authors>
+		<author>
+			<name github="DeuxHuitHuit" symphony="nitriques" twitter="DeuxHuitHuit">Deux Huit Huit</name>
+			<website>https://deuxhuithuit.com/</website>
+		</author>
+	</authors>
+	<dependencies>
+		<dependency version="2.0.0">dashboard</dependency>
+	</dependencies>
+	<releases>
+		<release version="0.1.0" date="2015-06-XX" min="2.5.0" max="2.6.x">
+			- First release
+		</release>
+	</releases>
+</extension>
