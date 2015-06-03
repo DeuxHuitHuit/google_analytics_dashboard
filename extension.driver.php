@@ -1,10 +1,12 @@
 <?php
 	/*
-	Copyight: Deux Huit Huit 2015
+	Copyrights: Deux Huit Huit 2015
 	LICENCE: MIT http://deuxhuithuit.mit-license.org;
 	*/
 	
 	if(!defined("__IN_SYMPHONY__")) die("<h2>Error</h2><p>You cannot directly access this file</p>");
+	
+	require_once(EXTENSIONS . '/google_analytics_dashboard/vendor/autoload.php');
 	
 	/**
 	 *
@@ -60,7 +62,7 @@
 			$config = $context['config'];
 			$height = isset($config['height']) ? $config['height'] : '500px';
 			$i = new XMLElement('iframe', null, array(
-				'src' => '/',
+				'src' => URL . '/symphony/extension/google_analytics_dashboard/?cid=' . $config['cid'],
 				'style' => "width:100%;height:$height;",
 				'frameborder' => 'no',
 				'scrolling' => 'no',
@@ -79,9 +81,26 @@
 			}
 			$config = $context['existing_config'];
 
-			$fieldset = new XMLElement('fieldset', NULL, array('class' => 'settings'));
+			$fieldset = new XMLElement('fieldset', NULL, array('class' => 'settings two cols'));
 			$fieldset->appendChild(new XMLElement('legend', 'Google Analytics Options'));
 
+			$label = Widget::Label('Google Analytics Client ID', Widget::Input('config[cid]', $config['cid']));
+			$fieldset->appendChild($label);
+			
+			$label = Widget::Label('Google Analytics Client Secret', Widget::Input('config[csec]', $config['csec']));
+			$fieldset->appendChild($label);
+			
+			$client = new Google_Client();
+			$config = $context['existing_config'];
+			$client = new Google_Client();
+			$client->setClientId($config['cid']);
+			$client->setClientSecret($config['csec']);
+			$client->setScopes('https://www.googleapis.com/auth/analytics.readonly');
+			//$client->setRedirectUri('');
+			$auth = Widget::Anchor('Get a token', $client->createAuthUrl());
+			$label = Widget::Label('Google Access Token ' . $auth->generate(), Widget::Input('config[at]', $config['at'], null, array('disabled' => 'disabled')));
+			$fieldset->appendChild($label);
+			
 			$label = Widget::Label('Height (include units)', Widget::Input('config[height]', $config['height']));
 			$fieldset->appendChild($label);
 
