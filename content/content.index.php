@@ -27,17 +27,33 @@
 				return;
 			}
 			
-			$CLIENT_ID = General::sanitize($_REQUEST['cid']);
-			
-			// this loads our class
+			// this loads our classes
+			$ext = Symphony::ExtensionManager()->create('dashboard');
 			$ext = Symphony::ExtensionManager()->create('google_analytics_dashboard');
 			
+			// html head
 			$this->Html->setDTD('<!DOCTYPE html>');
 			$this->Html->setAttribute('lang', Lang::get());
 			
 			$this->Head->appendChild(new XMLElement('title', extension_google_analytics_dashboard::EXT_NAME));
 			
-			$html = <<<HTML
+			// html body
+			$html = '';
+			$PANEL_ID = General::sanitize($_REQUEST['p']);
+			$panel = Extension_Dashboard::getPanel($PANEL_ID);
+			$config = unserialize($panel['config']);
+			$client = extension_google_analytics_dashboard::createClient($config, $panel['id']);
+			
+			if (!isset($config['access-token'])) {
+				$auth_url = $client->createAuthUrl();
+				$html = <<<HTML
+<a href="$auth_url" target="_top">Authenticate</a>
+HTML;
+			}
+			else {
+				
+				
+				$html = <<<HTML
 
 <section id="auth-button"></section>
 <section id="view-selector"></section>
@@ -90,7 +106,7 @@ gapi.analytics.ready(function() {
 </script>
 
 HTML;
-			
+			}
 			$this->Body->setValue($html);
 		}
 	}

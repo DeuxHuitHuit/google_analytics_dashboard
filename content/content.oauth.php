@@ -20,15 +20,16 @@
 			// this loads our class
 			$ext = Symphony::ExtensionManager()->create('google_analytics_dashboard');
 
-			$client = new Google_Client();
-			$client->setRedirectUri(APPLICATION_URL . self::SELF_URL);
-
 			// https://developers.google.com/api-client-library/php/auth/web-app
 			// https://developers.google.com/analytics/devguides/reporting/core/v3/quickstart/service-php
-			if (! isset($_GET['code'])) {
-				$auth_url = $client->createAuthUrl();
-				redirect(filter_var($auth_url, FILTER_SANITIZE_URL));
+			if (!isset($_GET['code'])) {
+				//$auth_url = $client->createAuthUrl();
+				//redirect(filter_var($auth_url, FILTER_SANITIZE_URL));
+				echo 'Error! ' . General::sanitize($_GET['error']);
 			} else {
+				
+				$client = extension_google_analytics_dashboard::createClient($config);
+				$client->setRedirectUri(APPLICATION_URL . self::SELF_URL);
 				$client->authenticate($_GET['code']);
 				$_SESSION['access_token'] = $client->getAccessToken();
 				redirect(APPLICATION_URL . '/extension/dashboard/index/');

@@ -28,6 +28,8 @@
 		 */
 		const PANEL_NAME = 'Google Analytics';
 
+		const URL = '/extension/google_analytics_dashboard/';
+
 		/* ********* DELEGATES ******* */
 
 		public function getSubscribedDelegates() {
@@ -62,7 +64,7 @@
 			$config = $context['config'];
 			$height = isset($config['height']) ? $config['height'] : '500px';
 			$i = new XMLElement('iframe', null, array(
-				'src' => APPLICATION_URL . '/extension/google_analytics_dashboard/?cid=' . $config['cid'],
+				'src' => APPLICATION_URL . self::URL .'?p=' . $context['id'],
 				'style' => "width:100%;height:$height;",
 				'frameborder' => 'no',
 				'scrolling' => 'no',
@@ -97,11 +99,7 @@
 			$label = Widget::Label('Google Analytics Client Secret', Widget::Input('config[csec]', $config['csec']));
 			$fieldset->appendChild($label);
 			
-			$client = new Google_Client();
-			$client->setClientId($config['cid']);
-			$client->setClientSecret($config['csec']);
-			$client->setScopes('https://www.googleapis.com/auth/analytics.readonly');
-			//$client->setRedirectUri('');
+			$client = static::createClient($config, $context['id']);
 			$auth = Widget::Anchor('Get a token', $client->createAuthUrl());
 			$label = Widget::Label('Google Access Token ' . $auth->generate(), Widget::Input('config[at]', $config['at'], null, array('disabled' => 'disabled')));
 			$fieldset->appendChild($label);
@@ -125,6 +123,18 @@
 				Symphony::Configuration()->set($handle, $config);
 				Symphony::Configuration()->write();
 			}
+		}
+
+		/* ********* GOOGLE CLIENT ******* */
+
+		public static function createClient(array $config, $panelId) {
+			$client = new Google_Client();
+			$client->setClientId($config['cid']);
+			//$client->setClientSecret($config['csec']);
+			$client->setScopes('https://www.googleapis.com/auth/analytics.readonly');
+			$client->setAccessType('offline');
+			$client->setRedirectUri(APPLICATION_URL . self::URL . 'oauth/?p=' . $panelId);
+			return $client;
 		}
 
 		/* ********* INSTALL/UPDATE/UNINSTALL ******* */
