@@ -57,10 +57,37 @@ HTML;
 				
 				
 				$html = <<<HTML
-
-<section id="auth-button"></section>
-<section id="view-selector"></section>
-<section id="timeline"></section>
+<style type="text/css">
+	html {
+		overflow-x: hidden;
+	}
+	body {
+		margin: 0;
+	}
+	.hidden {
+		display: none;
+	}
+</style>
+<section id="chart"></section>
+<a href="#" id="toggleOptions"><small>Options</small></a>
+<section id="view-selector" class="hidden"></section>
+<script>
+(function (g) {
+g.each = function (a, cb) {
+	Array.prototype.forEach.call(a, cb);
+};
+g.$ = function (sel, cb) {
+	var col = document.querySelectorAll(sel);
+	if (!!cb) {
+		each(col, cb);
+	}
+	return col;
+};
+g.$.remove = function (elem) {
+	elem.parentNode.removeChild(elem);
+};
+})(window);
+</script>
 <script>
 (function(w,d,s,g,js,fjs){
   g=w.gapi||(w.gapi={});g.analytics={q:[],ready:function(cb){this.q.push(cb)}};
@@ -69,7 +96,6 @@ HTML;
   fjs.parentNode.insertBefore(js,fjs);js.onload=function(){g.load('analytics')};
 }(window,document,'script'));
 </script>
-
 <script>
 gapi.analytics.ready(function() {
   gapi.analytics.auth.authorize({
@@ -77,21 +103,24 @@ gapi.analytics.ready(function() {
       access_token: '$at->access_token'
     }
   });
-  console.log('Autorized ? ' + gapi.analytics.auth.isAuthorized());
   var viewSelector = new gapi.analytics.ViewSelector({
     container: 'view-selector'
   });
-  var timeline = new gapi.analytics.googleCharts.DataChart({
+  var chart = new gapi.analytics.googleCharts.DataChart({
     reportType: 'ga',
     query: {
-      'dimensions': 'ga:date',
-      'metrics': 'ga:sessions',
-      'start-date': '30daysAgo',
-      'end-date': 'yesterday',
+      'dimensions': '{$config["dimensions"]}',
+      'metrics': '{$config["metrics"]}',
+      'start-date': '{$config["start-date"]}',
+      'end-date': '{$config["end-date"]}',
     },
     chart: {
-      type: 'LINE',
-      container: 'timeline'
+      type: '{$config["type"]}',
+      container: 'chart',
+      options: {
+        width: '100%',
+        height: '100%'
+      }
     }
   });
   viewSelector.on('change', function(ids) {
@@ -100,9 +129,27 @@ gapi.analytics.ready(function() {
         ids: ids
       }
     }
-    timeline.set(newIds).execute();
+    chart.set(newIds).execute();
+  });
+  chart.on('error', function (err) {
+    alert(err.error.message);
   });
   viewSelector.execute();
+  window.addEventListener('resize', function () {
+    viewSelector.execute();
+  });
+});
+</script>
+
+<script>
+var toggleOptions = function (e) {
+	$('#view-selector', function (elem) {
+		elem.classList.toggle('hidden');
+	});
+	e.preventDefault();
+};
+$('#toggleOptions', function (elem) {
+	elem.addEventListener('click', toggleOptions);
 });
 </script>
 

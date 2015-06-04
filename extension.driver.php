@@ -30,6 +30,8 @@
 
 		const URL = '/extension/google_analytics_dashboard/';
 
+		private static $CHART_TYPES = array('LINE', 'COLUMN', 'BAR', 'TABLE', 'GEO', 'PIE');
+
 		/* ********* DELEGATES ******* */
 
 		public function getSubscribedDelegates() {
@@ -62,12 +64,11 @@
 				return;
 			}
 			$config = $context['config'];
-			$height = isset($config['height']) ? $config['height'] : '500px';
+			$height = isset($config['height']) ? $config['height'] : '225px';
 			$i = new XMLElement('iframe', null, array(
 				'src' => APPLICATION_URL . self::URL .'?p=' . $context['id'],
 				'style' => "width:100%;height:$height;",
 				'frameborder' => 'no',
-				'scrolling' => 'no',
 			));
 
 			$context['panel']->appendChild($i);
@@ -90,7 +91,9 @@
 				}
 			}
 
-			$fieldset = new XMLElement('fieldset', NULL, array('class' => 'settings two cols'));
+			$wrapper = new XMLElement('div');
+
+			$fieldset = new XMLElement('fieldset', null, array('class' => 'settings'));
 			$fieldset->appendChild(new XMLElement('legend', 'Google Analytics Options'));
 
 			$label = Widget::Label('Google Analytics Service account email', Widget::Input('config[email]', $config['email']));
@@ -98,14 +101,63 @@
 			
 			$label = Widget::Label('Google Analytics p12 key file path (absolute or DOCROOT relative)', Widget::Input('config[keyfile]', $config['keyfile']));
 			$fieldset->appendChild($label);
+			$wrapper->appendChild($fieldset);
+			
+			$fieldset = new XMLElement('fieldset', null, array('class' => 'settings'));
+			$fieldset->appendChild(new XMLElement('legend', 'Reporting Options'));
+			$layout = new XMLElement('div', null, array('class' => 'two columns'));
+			$fieldset->appendChild($layout);
+			
+			if (!$config['start-date']) {
+				$config['start-date'] = '30daysAgo';
+			}
+			$label = Widget::Label('Start date', Widget::Input('config[start-date]', $config['start-date']), 'column');
+			$layout->appendChild($label);
+			
+			if (!$config['end-date']) {
+				$config['end-date'] = 'yesterday';
+			}
+			$label = Widget::Label('End date', Widget::Input('config[end-date]', $config['end-date']), 'column');
+			$layout->appendChild($label);
+			
+			if (!$config['dimensions']) {
+				$config['dimensions'] = 'ga:date';
+			}
+			$label = Widget::Label('Dimensions', Widget::Input('config[dimensions]', $config['dimensions']), 'column');
+			$layout->appendChild($label);
+			
+			if (!$config['metrics']) {
+				$config['metrics'] = 'ga:sessions';
+			}
+			$label = Widget::Label('Metrics', Widget::Input('config[metrics]', $config['metrics']), 'column');
+			$layout->appendChild($label);
+			
+			if (!$config['type']) {
+				$config['type'] = 'LINE';
+			}
+			$lineOptions = array();
+			foreach (self::$CHART_TYPES as $type) {
+				$lineOptions[] = array($type, $config['type'] == $type, strtolower($type));
+			}
+			$label = Widget::Label('Chart type', Widget::Select('config[type]', $lineOptions), 'column');
+			$layout->appendChild($label);
+			
+			$link = Widget::Anchor('Click here to explore available dimensions and metrics', 'https://developers.google.com/analytics/devguides/reporting/core/dimsmets', null, null, null, array('target' => '_blank'));
+			$label = Widget::Label('Help <br />', $link, 'column');
+			$layout->appendChild($label);
+			$wrapper->appendChild($fieldset);
+			
+			$fieldset = new XMLElement('fieldset', null, array('class' => 'settings'));
+			$fieldset->appendChild(new XMLElement('legend', 'Display Options'));
 			
 			$label = Widget::Label('Height (include units)', Widget::Input('config[height]', $config['height']));
 			$fieldset->appendChild($label);
 
 			$label = Widget::Label('Save as default', Widget::Input('default', 'on', 'checkbox'));
 			$fieldset->appendChild($label);
+			$wrapper->appendChild($fieldset);
 
-			$context['form'] = $fieldset;
+			$context['form'] = $wrapper;
 		}
 
 		public function dashboard_panel_validate($context) {
