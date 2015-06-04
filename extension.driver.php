@@ -62,7 +62,7 @@
 			$config = $context['config'];
 			$height = isset($config['height']) ? $config['height'] : '500px';
 			$i = new XMLElement('iframe', null, array(
-				'src' => URL . '/symphony/extension/google_analytics_dashboard/?cid=' . $config['cid'],
+				'src' => APPLICATION_URL . '/extension/google_analytics_dashboard/?cid=' . $config['cid'],
 				'style' => "width:100%;height:$height;",
 				'frameborder' => 'no',
 				'scrolling' => 'no',
@@ -80,6 +80,13 @@
 				return;
 			}
 			$config = $context['existing_config'];
+			if (empty($config)) {
+				$handle = General::createHandle(self::EXT_NAME);
+				$settings = Symphony::Configuration()->get($handle);
+				if (!empty($settings)) {
+					$config = $settings;
+				}
+			}
 
 			$fieldset = new XMLElement('fieldset', NULL, array('class' => 'settings two cols'));
 			$fieldset->appendChild(new XMLElement('legend', 'Google Analytics Options'));
@@ -90,8 +97,6 @@
 			$label = Widget::Label('Google Analytics Client Secret', Widget::Input('config[csec]', $config['csec']));
 			$fieldset->appendChild($label);
 			
-			$client = new Google_Client();
-			$config = $context['existing_config'];
 			$client = new Google_Client();
 			$client->setClientId($config['cid']);
 			$client->setClientSecret($config['csec']);
@@ -104,12 +109,21 @@
 			$label = Widget::Label('Height (include units)', Widget::Input('config[height]', $config['height']));
 			$fieldset->appendChild($label);
 
+			$label = Widget::Label('Save as default', Widget::Input('default', 'on', 'checkbox'));
+			$fieldset->appendChild($label);
+
 			$context['form'] = $fieldset;
 		}
 
 		public function dashboard_panel_validate($context) {
 			if ($context['type'] != self::PANEL_NAME) {
 				return;
+			}
+			if (isset($_POST['default']) && $_POST['default'] == 'on') {
+				$config = $context['existing_config'];
+				$handle = General::createHandle(self::EXT_NAME);
+				Symphony::Configuration()->set($handle, $config);
+				Symphony::Configuration()->write();
 			}
 		}
 
