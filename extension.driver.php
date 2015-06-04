@@ -96,7 +96,7 @@
 			$label = Widget::Label('Google Analytics Service account email', Widget::Input('config[email]', $config['email']));
 			$fieldset->appendChild($label);
 			
-			$label = Widget::Label('Google Analytics p12 key file path', Widget::Input('config[keyfile]', $config['keyfile']));
+			$label = Widget::Label('Google Analytics p12 key file path (absolute or DOCROOT relative)', Widget::Input('config[keyfile]', $config['keyfile']));
 			$fieldset->appendChild($label);
 			
 			$label = Widget::Label('Height (include units)', Widget::Input('config[height]', $config['height']));
@@ -130,7 +130,11 @@
 
 		public static function createClient(array $config, $panelId) {
 			$client = new Google_Client();
-			$key = @file_get_contents($config['keyfile']);
+			$keyfile = $config['keyfile'];
+			if (strpos($keyfile, '/') !== 0) {
+				$keyfile = DOCROOT . '/' . $keyfile;
+			}
+			$key = @file_get_contents($keyfile);
 			if (!!$key) {
 				$cred = new Google_Auth_AssertionCredentials(
 					$config['email'],

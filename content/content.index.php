@@ -50,7 +50,7 @@
 			
 			if (!($at = @json_decode($config['at']))) {
 				$html = <<<HTML
-<h1>Server auth failed! Please check your configuration and make sure you have a valid access token</h1>
+<h1>Server auth failed! Please check your configuration.</h1>
 HTML;
 			}
 			else {
