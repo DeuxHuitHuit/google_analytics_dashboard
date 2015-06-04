@@ -44,10 +44,13 @@
 			$config = unserialize($panel['config']);
 			$client = extension_google_analytics_dashboard::createClient($config, $panel['id']);
 			
-			if (!isset($config['access-token'])) {
-				$auth_url = $client->createAuthUrl();
+			if (!isset($config['at'])) {
+				$config['at'] = $client->getAccessToken();
+			}
+			
+			if (!($at = @json_decode($config['at']))) {
 				$html = <<<HTML
-<a href="$auth_url" target="_top">Authenticate</a>
+<h1>Server auth failed! Please check your configuration and make sure you have a valid access token</h1>
 HTML;
 			}
 			else {
@@ -69,11 +72,12 @@ HTML;
 
 <script>
 gapi.analytics.ready(function() {
-  var CLIENT_ID = '$CLIENT_ID';
   gapi.analytics.auth.authorize({
-    container: 'auth-button',
-    clientid: CLIENT_ID,
+    serverAuth: {
+      access_token: '$at->access_token'
+    }
   });
+  console.log('Autorized ? ' + gapi.analytics.auth.isAuthorized());
   var viewSelector = new gapi.analytics.ViewSelector({
     container: 'view-selector'
   });
@@ -90,10 +94,6 @@ gapi.analytics.ready(function() {
       container: 'timeline'
     }
   });
-  gapi.analytics.auth.on('success', function(response) {
-    viewSelector.execute();
-  });
-
   viewSelector.on('change', function(ids) {
     var newIds = {
       query: {
@@ -102,6 +102,7 @@ gapi.analytics.ready(function() {
     }
     timeline.set(newIds).execute();
   });
+  viewSelector.execute();
 });
 </script>
 

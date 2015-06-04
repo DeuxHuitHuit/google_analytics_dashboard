@@ -93,15 +93,10 @@
 			$fieldset = new XMLElement('fieldset', NULL, array('class' => 'settings two cols'));
 			$fieldset->appendChild(new XMLElement('legend', 'Google Analytics Options'));
 
-			$label = Widget::Label('Google Analytics Client ID', Widget::Input('config[cid]', $config['cid']));
+			$label = Widget::Label('Google Analytics Service account email', Widget::Input('config[email]', $config['email']));
 			$fieldset->appendChild($label);
 			
-			$label = Widget::Label('Google Analytics Client Secret', Widget::Input('config[csec]', $config['csec']));
-			$fieldset->appendChild($label);
-			
-			$client = static::createClient($config, $context['id']);
-			$auth = Widget::Anchor('Get a token', $client->createAuthUrl());
-			$label = Widget::Label('Google Access Token ' . $auth->generate(), Widget::Input('config[at]', $config['at'], null, array('disabled' => 'disabled')));
+			$label = Widget::Label('Google Analytics p12 key file path', Widget::Input('config[keyfile]', $config['keyfile']));
 			$fieldset->appendChild($label);
 			
 			$label = Widget::Label('Height (include units)', Widget::Input('config[height]', $config['height']));
@@ -120,7 +115,13 @@
 			if (isset($_POST['default']) && $_POST['default'] == 'on') {
 				$config = $context['existing_config'];
 				$handle = General::createHandle(self::EXT_NAME);
-				Symphony::Configuration()->set($handle, $config);
+				$client = static::createClient($config, $context['id']);
+				if (!isset($config['at'])) {
+					$config['at'] = $client->getAccessToken();
+				}
+				foreach ($config as $key => $value) {
+					Symphony::Configuration()->set($key, $value, $handle);
+				}
 				Symphony::Configuration()->write();
 			}
 		}
@@ -129,11 +130,18 @@
 
 		public static function createClient(array $config, $panelId) {
 			$client = new Google_Client();
-			$client->setClientId($config['cid']);
-			//$client->setClientSecret($config['csec']);
-			$client->setScopes('https://www.googleapis.com/auth/analytics.readonly');
-			$client->setAccessType('offline');
-			$client->setRedirectUri(APPLICATION_URL . self::URL . 'oauth/?p=' . $panelId);
+			$key = @file_get_contents($config['keyfile']);
+			if (!!$key) {
+				$cred = new Google_Auth_AssertionCredentials(
+					$config['email'],
+					array(Google_Service_Analytics::ANALYTICS_READONLY),
+					$key
+				);
+				$client->setAssertionCredentials($cred);
+				if ($client->getAuth()->isAccessTokenExpired()) {
+					$client->getAuth()->refreshTokenWithAssertion($cred);
+				}
+			}
 			return $client;
 		}
 
