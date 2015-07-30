@@ -166,6 +166,9 @@
 			}
 			if (isset($_POST['default']) && $_POST['default'] == 'on') {
 				$config = $context['existing_config'];
+				if ($config == false) {
+					$config = array();
+				}
 				$handle = General::createHandle(self::EXT_NAME);
 				$client = static::createClient($config, $context['id']);
 				if (!isset($config['at'])) {
