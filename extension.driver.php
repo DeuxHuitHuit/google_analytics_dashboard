@@ -185,6 +185,7 @@
 
 		public static function createClient(array $config, $panelId) {
 			$client = new Google_Client();
+			$client->setClassConfig('Google_Cache_File', 'directory', TMP);
 			$keyfile = $config['keyfile'];
 			if (strpos($keyfile, '/') !== 0) {
 				$keyfile = DOCROOT . '/' . $keyfile;
