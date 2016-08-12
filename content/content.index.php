@@ -42,9 +42,15 @@
 			$PANEL_ID = General::sanitize($_REQUEST['p']);
 			$panel = Extension_Dashboard::getPanel($PANEL_ID);
 			$config = unserialize($panel['config']);
+			
+			//var_dump($panel['config']);die;
+			if (!$config) {
+				throw new Exception('Could not deserialize config..');
+			}
+
 			$client = extension_google_analytics_dashboard::createClient($config, $panel['id']);
 			
-			if (!isset($config['at'])) {
+			if (!isset($config['at']) || empty($config['at'])) {
 				$config['at'] = $client->getAccessToken();
 			}
 			
