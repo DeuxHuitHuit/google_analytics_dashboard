@@ -42,12 +42,17 @@
 			$PANEL_ID = General::sanitize($_REQUEST['p']);
 			$panel = Extension_Dashboard::getPanel($PANEL_ID);
 			$config = unserialize($panel['config']);
+
+			if (!$config) {
+				throw new Exception('Could not deserialize config..');
+			}
+
 			$client = extension_google_analytics_dashboard::createClient($config, $panel['id']);
 			
-			if (!isset($config['at'])) {
+			if (!isset($config['at']) || empty($config['at'])) {
 				$config['at'] = $client->getAccessToken();
 			}
-			
+
 			if (!($at = @json_decode($config['at']))) {
 				$html = <<<HTML
 <h1>Server auth failed! Please check your configuration.</h1>
