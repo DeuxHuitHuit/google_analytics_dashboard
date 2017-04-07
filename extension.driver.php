@@ -185,7 +185,8 @@
 
 		public static function createClient(array $config, $panelId) {
 			$client = new Google_Client();
-			$client->setClassConfig('Google_Cache_File', 'directory', TMP);
+			$tmpFolder = Symphony::Configuration()->get('tmp_path', General::createHandle(self::EXT_NAME));
+			$client->setClassConfig('Google_Cache_File', 'directory', $tmpFolder ? $tmpFolder : TMP);
 			$keyfile = $config['keyfile'];
 			if (strpos($keyfile, '/') !== 0) {
 				$keyfile = DOCROOT . '/' . $keyfile;
@@ -207,11 +208,17 @@
 
 		/* ********* INSTALL/UPDATE/UNINSTALL ******* */
 
+		private function createTmpPathSetting() {
+			$handle = General::createHandle(self::EXT_NAME);
+			Symphony::Configuration()->set('tmp_path', TMP, $handle);
+			return Symphony::Configuration()->write();
+		}
+
 		/**
 		 * Creates the table needed for the settings of the field
 		 */
 		public function install() {
-			return true;
+			return $this->createTmpPathSetting();
 		}
 
 		/**
@@ -220,7 +227,17 @@
 		 * @param string $previousVersion
 		 */
 		public function update($previousVersion = false) {
-			return true;
+			$ret = true;
+
+			if (!$previousVersion) {
+				$previousVersion = '0.0.1';
+			}
+
+			// less than 1.0.3
+			if ($ret && version_compare($previousVersion, '1.0.3') == -1) {
+				$ret = $this->createTmpPathSetting();
+			}
+			return $ret;
 		}
 
 		public function uninstall() {
