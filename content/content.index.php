@@ -93,6 +93,7 @@ g.$.remove = function (elem) {
 };
 })(window);
 </script>
+<script src="https://www.google.com/jsapi"></script>
 <script>
 (function(w,d,s,g,js,fjs){
   g=w.gapi||(w.gapi={});g.analytics={q:[],ready:function(cb){this.q.push(cb)}};
