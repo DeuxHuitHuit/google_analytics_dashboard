@@ -228,11 +228,11 @@
 		 */
 		public function update($previousVersion = false) {
 			$ret = true;
-
+			
 			if (!$previousVersion) {
 				$previousVersion = '0.0.1';
 			}
-
+			
 			// less than 1.0.3
 			if ($ret && version_compare($previousVersion, '1.0.3') == -1) {
 				$ret = $this->createTmpPathSetting();

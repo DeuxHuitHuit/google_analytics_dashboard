@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<extension id="google_analytics_dashboard" status="released" xmlns="http://symphony-cms.com/schemas/extension/1.0">
+<extension id="google_analytics_dashboard" status="released" xmlns="http://getsymphony.com/schemas/extension/1.0">
 	<name>Google Analytics Dashboard</name>
 	<description>
 		Google Analytics dashboard for Symphony CMS.
@@ -24,6 +24,10 @@
 		<dependency version="2.0.0">dashboard</dependency>
 	</dependencies>
 	<releases>
+		<release version="1.0.3" date="2017-07-07" min="2.5.0" max="2.6.x">
+			- Fix issue with Google Analytics jsapi
+			- Make the temp folder configurable
+		</release>
 		<release version="1.0.2" date="2016-08-12" min="2.5.0" max="2.6.x">
 			- Supported on PHP 7
 			- Fix issue with token 
