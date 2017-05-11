@@ -24,13 +24,16 @@
 		<dependency version="2.0.0">dashboard</dependency>
 	</dependencies>
 	<releases>
+		<release version="2.0.0" date="TBA" min="4.0.0" max="4.x.x">
+			- Update for Symphony 4.x
+		</release>
 		<release version="1.0.3" date="2017-04-07" min="2.5.0" max="2.6.x">
 			- Fix issue with Google Analytics jsapi
 			- Make the temp folder configurable
 		</release>
 		<release version="1.0.2" date="2016-08-12" min="2.5.0" max="2.6.x">
 			- Supported on PHP 7
-			- Fix issue with token 
+			- Fix issue with token
 		</release>
 		<release version="1.0.1" date="2015-08-04" min="2.5.0" max="2.6.x">
 			- Fix issue with Google Analytics API temp folder
