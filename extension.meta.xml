@@ -24,7 +24,7 @@
 		<dependency version="2.0.0">dashboard</dependency>
 	</dependencies>
 	<releases>
-		<release version="1.0.3" date="2017-07-07" min="2.5.0" max="2.6.x">
+		<release version="1.0.3" date="2017-04-07" min="2.5.0" max="2.6.x">
 			- Fix issue with Google Analytics jsapi
 			- Make the temp folder configurable
 		</release>
