@@ -17,7 +17,7 @@
 		/**
 		 * Builds the content view
 		 */
-		public function build() {
+		public function build(array $context = array()) {
 			if (!Symphony::isLoggedIn()) {
 				Administration::instance()->throwCustomError(
 					__('You are not authorised to access this page.'),
